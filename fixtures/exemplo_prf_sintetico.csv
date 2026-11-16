@@ -1,0 +1,6 @@
+id;data_inversa;dia_semana;uf;causa_acidente;tipo_acidente;classificacao_acidente;fase_dia;condicao_metereologica;tipo_pista;tracado_via;uso_solo;veiculos
+1;10/01/2025;sexta-feira;PR;Falta de atenção à condução;Colisão traseira;Com Vítimas Feridas;Pleno dia;Céu claro;Dupla;Reta;Urbano;2
+2;11/01/2025;sábado;MG;Velocidade incompatível;Saída de leito carroçável;Com Vítimas Fatais;Plena Noite;Chuva;Simples;Curva;Rural;1
+3;12/01/2025;domingo;SP;Defeito mecânico no veículo;Capotamento;Com Vítimas Feridas;Anoitecer;Nublado;Simples;Curva;Rural;1
+4;13/01/2025;segunda-feira;BA;Animais na pista;Atropelamento de animal;Sem Vítimas;Amanhecer;Céu claro;Simples;Reta;Rural;1
+5;14/01/2025;terça-feira;SC;Não identificado;Colisão transversal;Ignorado;Pleno dia;Céu claro;Dupla;Cruzamento;Urbano;2

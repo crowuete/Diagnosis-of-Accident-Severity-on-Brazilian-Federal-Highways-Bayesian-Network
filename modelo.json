@@ -1,0 +1,2932 @@
+{
+  "project": {
+    "title": "Diagnóstico da Gravidade de Acidentes nas Rodovias Federais Brasileiras com Redes Bayesianas — modelo compacto",
+    "version": "1.0.0",
+    "dataset": "Dados Abertos de Acidentes da Polícia Rodoviária Federal (PRF), DATATRAN, agrupados por ocorrência",
+    "dataset_years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "dataset_period": "2021-2025",
+    "unit_of_analysis": "Uma linha por ocorrência de acidente registrada pela PRF",
+    "source_url": "https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dados-abertos-da-prf",
+    "dictionary_url": "https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dicionario-acidentes",
+    "analysis_type": [
+      "diagnóstica",
+      "preditiva condicionada a evidências já registradas"
+    ],
+    "main_question": "Dadas as características registradas da ocorrência, especialmente o tipo de acidente, a condição meteorológica e a fase do dia, qual é a distribuição de probabilidade entre acidente sem vítimas, com vítimas feridas e com vítimas fatais?",
+    "probability_basis": "CPTs especificadas manualmente por âncoras, multiplicadores e distribuições condicionais editáveis. Os priors de METEOROLOGIA e REGIAO foram escolhidos manualmente como aproximações críticas das frequências descritivas PRF 2021–2025; as demais CPTs permanecem hipóteses manuais. Nenhuma estrutura ou CPT é aprendida/estimada automaticamente por algoritmo a partir dos CSVs.",
+    "cpt_parameter_file": "config/parametros_cpt.json",
+    "root_prior_definition": {
+      "METEOROLOGIA": {
+        "states_order": [
+          "Céu claro/sol",
+          "Nublado",
+          "Chuva/garoa",
+          "Neblina/nevoeiro",
+          "Outras adversas",
+          "Ignorada"
+        ],
+        "observed_percent_2021_2025": [
+          68.3382,
+          15.7641,
+          13.5759,
+          0.8282,
+          0.1786,
+          1.315
+        ],
+        "selected_prior_percent": [
+          66,
+          15,
+          15,
+          2,
+          1,
+          1
+        ],
+        "basis": "Aproximação manual crítica das frequências observadas; redistribui pequena parcela para chuva, neblina e outras condições adversas. Não é estimação automática da CPT."
+      },
+      "REGIAO": {
+        "states_order": [
+          "Norte",
+          "Nordeste",
+          "Centro-Oeste",
+          "Sudeste",
+          "Sul",
+          "Ignorada"
+        ],
+        "observed_percent_2021_2025": [
+          5.4132,
+          21.6649,
+          12.0176,
+          31.3049,
+          29.5995,
+          0.0
+        ],
+        "selected_prior_percent": [
+          6,
+          20,
+          12,
+          32,
+          28,
+          2
+        ],
+        "basis": "Aproximação manual das frequências observadas; 2% são reservados ao estado Ignorada, embora não tenha ocorrido na base tratada. Não é frequência observada."
+      }
+    },
+    "dataset_summary": {
+      "records_read": 342670,
+      "records_with_valid_severity": 342665,
+      "records_excluded": 5,
+      "years": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "unit": "ocorrência de acidente"
+    },
+    "cpt_generation_method": "A CPT de GRAVIDADE parte de uma distribuição-âncora manual por tipo de acidente, aplica multiplicadores manuais de meteorologia e fase do dia e normaliza cada linha. Possui 7 × 6 × 4 = 168 configurações. A rede contém 10 variáveis e 10 arestas, totalizando 210 linhas de CPT. Os priors de meteorologia e região foram ajustados manualmente para aproximações críticas das frequências descritivas PRF 2021–2025; os outros parâmetros seguem hipóteses manuais. O modelo reduzido assume independências condicionais explícitas documentadas no README.md.",
+    "research_sources": [
+      {
+        "citation": "FRANCESCHI, L. et al. (2022). Fatores relacionados à severidade de acidentes em rodovias no Brasil através de um modelo de regressão logística multinomial. Transportes, 30(1).",
+        "url": "https://doi.org/10.14295/transportes.v30i1.2566",
+        "use": "Fundamenta qualitativamente a importância do tipo de ocorrência/pedestre e a necessidade de distinguir condições de tempo; não fornece probabilidades absolutas para as CPTs deste projeto."
+      },
+      {
+        "citation": "BARROSO JUNIOR, G. T.; BERTHO, A. C. S.; VEIGA, A. C. (2019). A letalidade dos acidentes de trânsito nas rodovias federais brasileiras em 2016. Revista Brasileira de Estudos de População, 36.",
+        "url": "https://doi.org/10.20947/S0102-3098a0074",
+        "use": "Oferece associações observacionais sobre letalidade, ambiente, período e via; a unidade de análise é vítima, distinta da gravidade por ocorrência usada aqui."
+      },
+      {
+        "citation": "OBSERVATÓRIO NACIONAL DE SEGURANÇA VIÁRIA / UFPR (2026). Estudo revela o perfil da sinistralidade nas rodovias federais brasileiras.",
+        "url": "https://www.onsv.org.br/comunicacao/materias/estudo-revela-o-perfil-da-sinistralidade-nas-rodovias-federais-brasileiras",
+        "use": "Fonte contextual para diferenças entre colisões frontais/traseiras; não é uma CPT diretamente transferível."
+      },
+      {
+        "citation": "ANDRIOLA, C. L.; TORRES, T. B.; GARCÍA, D. S. P. (2019). Influência dos parâmetros geométricos de rodovias na frequência e severidade de acidentes viários em curvas: o caso da BR 116. Transportes, 27(3).",
+        "url": "https://doi.org/10.14295/transportes.v27i3.1997",
+        "use": "Demonstra que o efeito de curvas depende de características geométricas específicas; sustenta cautela na interpretação da categoria agregada."
+      },
+      {
+        "citation": "PRF. Dicionário de dados de acidentes (sistema BAT).",
+        "url": "https://www.gov.br/prf/pt-br/acesso-a-informacao/dados-abertos/dicionario-acidentes",
+        "use": "Fundamenta os significados operacionais dos campos DATATRAN."
+      }
+    ],
+    "limitations": [
+      "A rede estima a distribuição de gravidade entre ocorrências já registradas pela PRF em rodovias federais; não estima risco de acidente por trecho, veículo-quilômetro ou pessoa exposta.",
+      "A CPT é manual e didática. As fontes sustentam direções qualitativas, mas não fornecem probabilidades absolutas para todas as configurações desta rede.",
+      "As frequências descritivas dos 342.665 registros válidos de 2021-2025 não foram usadas para estimar automaticamente as CPTs; apenas os priors-raiz de METEOROLOGIA e REGIAO foram definidos manualmente como aproximações críticas dessas frequências, com redistribuições explicitadas no README.md.",
+      "O modelo possui simplificações de independência condicional. Em particular, assume GRAVIDADE independente de TIPO_PISTA, TRACADO_VIA, USO_SOLO e VEICULOS uma vez conhecidos TIPO_ACIDENTE, METEOROLOGIA e FASE_DIA.",
+      "DIA_SEMANA influencia FASE_DIA na fatoração, mas não é pai direto de GRAVIDADE; essa dependência compacta deve ser interpretada como associação da distribuição temporal, não causalidade.",
+      "Os estudos citados são observacionais. Associação não comprova causalidade; odds ratios não foram convertidos diretamente em probabilidades absolutas.",
+      "A classificação de gravidade é por ocorrência e não equivale à letalidade individual por vítima.",
+      "Categorias agregadas não representam detalhes como velocidade efetiva, raio de curva, superelevação, declividade, volume de tráfego ou tempo de resposta do socorro.",
+      "Os priors de METEOROLOGIA e REGIAO são aproximações manuais das frequências descritivas; o prior de DIA_SEMANA e as CPTs intermediárias continuam sendo hipóteses manuais. A massa de 2% atribuída a REGIAO=Ignorada não foi observada nos registros tratados e funciona como reserva manual para informação desconhecida. Todos os parâmetros exigem justificativa e análise de sensibilidade."
+    ]
+  },
+  "variables": [
+    {
+      "id": "DIA_SEMANA",
+      "name": "Dia da semana",
+      "description": "Dia útil, fim de semana ou informação ignorada.",
+      "states": [
+        "Dia útil",
+        "Fim de semana",
+        "Ignorado"
+      ],
+      "parents": []
+    },
+    {
+      "id": "FASE_DIA",
+      "name": "Fase do dia",
+      "description": "Fase temporal agrupada em pleno dia, transição (amanhecer/anoitecer), plena noite ou ignorada.",
+      "states": [
+        "Pleno dia",
+        "Transição",
+        "Plena noite",
+        "Ignorada"
+      ],
+      "parents": [
+        "DIA_SEMANA"
+      ]
+    },
+    {
+      "id": "METEOROLOGIA",
+      "name": "Condição meteorológica",
+      "description": "Céu claro/sol, nublado, chuva/garoa, neblina/nevoeiro, outras adversas ou ignorada.",
+      "states": [
+        "Céu claro/sol",
+        "Nublado",
+        "Chuva/garoa",
+        "Neblina/nevoeiro",
+        "Outras adversas",
+        "Ignorada"
+      ],
+      "parents": []
+    },
+    {
+      "id": "REGIAO",
+      "name": "Região geográfica",
+      "description": "Macrorregião brasileira derivada da UF registrada pela PRF.",
+      "states": [
+        "Norte",
+        "Nordeste",
+        "Centro-Oeste",
+        "Sudeste",
+        "Sul",
+        "Ignorada"
+      ],
+      "parents": []
+    },
+    {
+      "id": "USO_SOLO",
+      "name": "Uso do solo",
+      "description": "Classificação do local como urbano, rural ou ignorado; no dicionário PRF, Sim corresponde a urbano e Não a rural.",
+      "states": [
+        "Urbano",
+        "Rural",
+        "Ignorado"
+      ],
+      "parents": [
+        "REGIAO"
+      ]
+    },
+    {
+      "id": "TIPO_PISTA",
+      "name": "Tipo de pista",
+      "description": "Tipo de pista registrado pela PRF: simples, dupla, múltipla ou ignorada.",
+      "states": [
+        "Simples",
+        "Dupla",
+        "Múltipla",
+        "Ignorada"
+      ],
+      "parents": [
+        "USO_SOLO"
+      ]
+    },
+    {
+      "id": "TRACADO_VIA",
+      "name": "Traçado da via",
+      "description": "Traçado agrupado em reta, curva, cruzamento ou outros/ignorado.",
+      "states": [
+        "Reta",
+        "Curva",
+        "Cruzamento",
+        "Outros/ignorado"
+      ],
+      "parents": [
+        "TIPO_PISTA"
+      ]
+    },
+    {
+      "id": "TIPO_ACIDENTE",
+      "name": "Tipo de acidente",
+      "description": "Categoria da ocorrência, preservando colisões frontais e traseiras, outras colisões, saída de pista/capotamento/tombamento, atropelamentos de pedestre/animal e outros/ignorado.",
+      "states": [
+        "Colisão frontal",
+        "Colisão traseira",
+        "Outras colisões",
+        "Saída de pista/capotamento/tombamento",
+        "Atropelamento de pedestre",
+        "Atropelamento de animal",
+        "Outros/ignorado"
+      ],
+      "parents": [
+        "TIPO_PISTA",
+        "TRACADO_VIA"
+      ]
+    },
+    {
+      "id": "VEICULOS",
+      "name": "Quantidade de veículos",
+      "description": "Quantidade de veículos envolvidos, agrupada em um, dois, três ou mais, ou ignorada. Funciona como evidência diagnóstica indireta sobre o tipo de acidente.",
+      "states": [
+        "1",
+        "2",
+        "3 ou mais",
+        "Ignorada"
+      ],
+      "parents": [
+        "TIPO_ACIDENTE"
+      ]
+    },
+    {
+      "id": "GRAVIDADE",
+      "name": "Gravidade do acidente",
+      "description": "Classificação da ocorrência na PRF: sem vítimas, com vítimas feridas ou com vítimas fatais.",
+      "states": [
+        "Sem vítimas",
+        "Com vítimas feridas",
+        "Com vítimas fatais"
+      ],
+      "parents": [
+        "TIPO_ACIDENTE",
+        "METEOROLOGIA",
+        "FASE_DIA"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "DIA_SEMANA",
+      "to": "FASE_DIA"
+    },
+    {
+      "from": "REGIAO",
+      "to": "USO_SOLO"
+    },
+    {
+      "from": "USO_SOLO",
+      "to": "TIPO_PISTA"
+    },
+    {
+      "from": "TIPO_PISTA",
+      "to": "TRACADO_VIA"
+    },
+    {
+      "from": "TIPO_PISTA",
+      "to": "TIPO_ACIDENTE"
+    },
+    {
+      "from": "TRACADO_VIA",
+      "to": "TIPO_ACIDENTE"
+    },
+    {
+      "from": "TIPO_ACIDENTE",
+      "to": "VEICULOS"
+    },
+    {
+      "from": "TIPO_ACIDENTE",
+      "to": "GRAVIDADE"
+    },
+    {
+      "from": "METEOROLOGIA",
+      "to": "GRAVIDADE"
+    },
+    {
+      "from": "FASE_DIA",
+      "to": "GRAVIDADE"
+    }
+  ],
+  "cpts": {
+    "DIA_SEMANA": [
+      {
+        "when": {},
+        "probabilities": {
+          "Dia útil": 0.475,
+          "Fim de semana": 0.475,
+          "Ignorado": 0.05
+        }
+      }
+    ],
+    "FASE_DIA": [
+      {
+        "when": {
+          "DIA_SEMANA": "Dia útil"
+        },
+        "probabilities": {
+          "Pleno dia": 0.56,
+          "Transição": 0.1,
+          "Plena noite": 0.3,
+          "Ignorada": 0.04
+        }
+      },
+      {
+        "when": {
+          "DIA_SEMANA": "Fim de semana"
+        },
+        "probabilities": {
+          "Pleno dia": 0.54,
+          "Transição": 0.12,
+          "Plena noite": 0.3,
+          "Ignorada": 0.04
+        }
+      },
+      {
+        "when": {
+          "DIA_SEMANA": "Ignorado"
+        },
+        "probabilities": {
+          "Pleno dia": 0.45,
+          "Transição": 0.15,
+          "Plena noite": 0.2,
+          "Ignorada": 0.2
+        }
+      }
+    ],
+    "METEOROLOGIA": [
+      {
+        "when": {},
+        "probabilities": {
+          "Céu claro/sol": 0.66,
+          "Nublado": 0.15,
+          "Chuva/garoa": 0.15,
+          "Neblina/nevoeiro": 0.02,
+          "Outras adversas": 0.01,
+          "Ignorada": 0.01
+        }
+      }
+    ],
+    "REGIAO": [
+      {
+        "when": {},
+        "probabilities": {
+          "Norte": 0.06,
+          "Nordeste": 0.2,
+          "Centro-Oeste": 0.12,
+          "Sudeste": 0.32,
+          "Sul": 0.28,
+          "Ignorada": 0.02
+        }
+      }
+    ],
+    "USO_SOLO": [
+      {
+        "when": {
+          "REGIAO": "Norte"
+        },
+        "probabilities": {
+          "Urbano": 0.38,
+          "Rural": 0.57,
+          "Ignorado": 0.05
+        }
+      },
+      {
+        "when": {
+          "REGIAO": "Nordeste"
+        },
+        "probabilities": {
+          "Urbano": 0.55,
+          "Rural": 0.4,
+          "Ignorado": 0.05
+        }
+      },
+      {
+        "when": {
+          "REGIAO": "Centro-Oeste"
+        },
+        "probabilities": {
+          "Urbano": 0.48,
+          "Rural": 0.47,
+          "Ignorado": 0.05
+        }
+      },
+      {
+        "when": {
+          "REGIAO": "Sudeste"
+        },
+        "probabilities": {
+          "Urbano": 0.7,
+          "Rural": 0.25,
+          "Ignorado": 0.05
+        }
+      },
+      {
+        "when": {
+          "REGIAO": "Sul"
+        },
+        "probabilities": {
+          "Urbano": 0.62,
+          "Rural": 0.33,
+          "Ignorado": 0.05
+        }
+      },
+      {
+        "when": {
+          "REGIAO": "Ignorada"
+        },
+        "probabilities": {
+          "Urbano": 0.45,
+          "Rural": 0.4,
+          "Ignorado": 0.15
+        }
+      }
+    ],
+    "TIPO_PISTA": [
+      {
+        "when": {
+          "USO_SOLO": "Urbano"
+        },
+        "probabilities": {
+          "Simples": 0.42,
+          "Dupla": 0.4,
+          "Múltipla": 0.13,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "USO_SOLO": "Rural"
+        },
+        "probabilities": {
+          "Simples": 0.72,
+          "Dupla": 0.18,
+          "Múltipla": 0.05,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "USO_SOLO": "Ignorado"
+        },
+        "probabilities": {
+          "Simples": 0.45,
+          "Dupla": 0.3,
+          "Múltipla": 0.1,
+          "Ignorada": 0.15
+        }
+      }
+    ],
+    "TRACADO_VIA": [
+      {
+        "when": {
+          "TIPO_PISTA": "Simples"
+        },
+        "probabilities": {
+          "Reta": 0.6,
+          "Curva": 0.28,
+          "Cruzamento": 0.08,
+          "Outros/ignorado": 0.04
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Dupla"
+        },
+        "probabilities": {
+          "Reta": 0.55,
+          "Curva": 0.22,
+          "Cruzamento": 0.18,
+          "Outros/ignorado": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Múltipla"
+        },
+        "probabilities": {
+          "Reta": 0.45,
+          "Curva": 0.18,
+          "Cruzamento": 0.32,
+          "Outros/ignorado": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Ignorada"
+        },
+        "probabilities": {
+          "Reta": 0.4,
+          "Curva": 0.2,
+          "Cruzamento": 0.2,
+          "Outros/ignorado": 0.2
+        }
+      }
+    ],
+    "TIPO_ACIDENTE": [
+      {
+        "when": {
+          "TIPO_PISTA": "Simples",
+          "TRACADO_VIA": "Reta"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.1289962103,
+          "Colisão traseira": 0.1288504519,
+          "Outras colisões": 0.301234088,
+          "Saída de pista/capotamento/tombamento": 0.2238606549,
+          "Atropelamento de pedestre": 0.0323097852,
+          "Atropelamento de animal": 0.0438489943,
+          "Outros/ignorado": 0.1408998154
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Simples",
+          "TRACADO_VIA": "Curva"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0979726756,
+          "Colisão traseira": 0.1154771269,
+          "Outras colisões": 0.2875758342,
+          "Saída de pista/capotamento/tombamento": 0.2869368819,
+          "Atropelamento de pedestre": 0.0298177708,
+          "Atropelamento de animal": 0.0449633052,
+          "Outros/ignorado": 0.1372564054
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Simples",
+          "TRACADO_VIA": "Cruzamento"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0808484092,
+          "Colisão traseira": 0.1654398004,
+          "Outras colisões": 0.3558328135,
+          "Saída de pista/capotamento/tombamento": 0.1573300062,
+          "Atropelamento de pedestre": 0.0436681223,
+          "Atropelamento de animal": 0.0521522146,
+          "Outros/ignorado": 0.1447286338
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Simples",
+          "TRACADO_VIA": "Outros/ignorado"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.1097453907,
+          "Colisão traseira": 0.1293532338,
+          "Outras colisões": 0.302409521,
+          "Saída de pista/capotamento/tombamento": 0.2365622866,
+          "Atropelamento de pedestre": 0.0341430104,
+          "Atropelamento de animal": 0.0463369427,
+          "Outros/ignorado": 0.1414496147
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Dupla",
+          "TRACADO_VIA": "Reta"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0848220228,
+          "Colisão traseira": 0.1331167967,
+          "Outras colisões": 0.3174323613,
+          "Saída de pista/capotamento/tombamento": 0.2358983233,
+          "Atropelamento de pedestre": 0.0340471807,
+          "Atropelamento de animal": 0.0462068881,
+          "Outros/ignorado": 0.1484764271
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Dupla",
+          "TRACADO_VIA": "Curva"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0636227243,
+          "Colisão traseira": 0.1178198597,
+          "Outras colisões": 0.2992782056,
+          "Saída de pista/capotamento/tombamento": 0.2986132524,
+          "Atropelamento de pedestre": 0.0310311503,
+          "Atropelamento de animal": 0.0467930045,
+          "Outros/ignorado": 0.1428418032
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Dupla",
+          "TRACADO_VIA": "Cruzamento"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0522057616,
+          "Colisão traseira": 0.1678425977,
+          "Outras colisões": 0.3682208375,
+          "Saída de pista/capotamento/tombamento": 0.1628073198,
+          "Atropelamento de pedestre": 0.0451883917,
+          "Atropelamento de animal": 0.0539678507,
+          "Outros/ignorado": 0.149767241
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Dupla",
+          "TRACADO_VIA": "Outros/ignorado"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0716180371,
+          "Colisão traseira": 0.1326259947,
+          "Outras colisões": 0.3162619873,
+          "Saída de pista/capotamento/tombamento": 0.2473984901,
+          "Atropelamento de pedestre": 0.0357069986,
+          "Atropelamento de animal": 0.0484594981,
+          "Outros/ignorado": 0.1479289941
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Múltipla",
+          "TRACADO_VIA": "Reta"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0749621639,
+          "Colisão traseira": 0.1322446505,
+          "Outras colisões": 0.3217883961,
+          "Saída de pista/capotamento/tombamento": 0.2391354895,
+          "Atropelamento de pedestre": 0.0345144005,
+          "Atropelamento de animal": 0.0468409722,
+          "Outros/ignorado": 0.1505139272
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Múltipla",
+          "TRACADO_VIA": "Curva"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0560552827,
+          "Colisão traseira": 0.1166902454,
+          "Outras colisões": 0.3024579939,
+          "Saída de pista/capotamento/tombamento": 0.3017859756,
+          "Atropelamento de pedestre": 0.0313608519,
+          "Atropelamento de animal": 0.0472901735,
+          "Outros/ignorado": 0.144359477
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Múltipla",
+          "TRACADO_VIA": "Cruzamento"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0459747569,
+          "Colisão traseira": 0.1661555926,
+          "Outras colisões": 0.3719589875,
+          "Saída de pista/capotamento/tombamento": 0.1644601274,
+          "Atropelamento de pedestre": 0.0456471408,
+          "Atropelamento de animal": 0.0545157282,
+          "Outros/ignorado": 0.1512876667
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Múltipla",
+          "TRACADO_VIA": "Outros/ignorado"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0631839769,
+          "Colisão traseira": 0.1315300434,
+          "Outras colisões": 0.3200495561,
+          "Saída de pista/capotamento/tombamento": 0.2503613463,
+          "Atropelamento de pedestre": 0.0361346273,
+          "Atropelamento de animal": 0.0490398513,
+          "Outros/ignorado": 0.1497005988
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Ignorada",
+          "TRACADO_VIA": "Reta"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.1062053103,
+          "Colisão traseira": 0.1300065003,
+          "Outras colisões": 0.3100155008,
+          "Saída de pista/capotamento/tombamento": 0.2303865193,
+          "Atropelamento de pedestre": 0.0332516626,
+          "Atropelamento de animal": 0.0451272564,
+          "Outros/ignorado": 0.1450072504
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Ignorada",
+          "TRACADO_VIA": "Curva"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0801296785,
+          "Colisão traseira": 0.1157428689,
+          "Outras colisões": 0.294002371,
+          "Saída de pista/capotamento/tombamento": 0.2933491399,
+          "Atropelamento de pedestre": 0.0304841168,
+          "Atropelamento de animal": 0.0459681126,
+          "Outros/ignorado": 0.1403237123
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Ignorada",
+          "TRACADO_VIA": "Cruzamento"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.0659592335,
+          "Colisão traseira": 0.1654070285,
+          "Outras colisões": 0.3628775734,
+          "Saída de pista/capotamento/tombamento": 0.1604448177,
+          "Atropelamento de pedestre": 0.0445326615,
+          "Atropelamento de animal": 0.0531847215,
+          "Outros/ignorado": 0.1475939639
+        }
+      },
+      {
+        "when": {
+          "TIPO_PISTA": "Ignorada",
+          "TRACADO_VIA": "Outros/ignorado"
+        },
+        "probabilities": {
+          "Colisão frontal": 0.09,
+          "Colisão traseira": 0.13,
+          "Outras colisões": 0.31,
+          "Saída de pista/capotamento/tombamento": 0.2425,
+          "Atropelamento de pedestre": 0.035,
+          "Atropelamento de animal": 0.0475,
+          "Outros/ignorado": 0.145
+        }
+      }
+    ],
+    "VEICULOS": [
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal"
+        },
+        "probabilities": {
+          "1": 0.05,
+          "2": 0.73,
+          "3 ou mais": 0.17,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira"
+        },
+        "probabilities": {
+          "1": 0.03,
+          "2": 0.78,
+          "3 ou mais": 0.14,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões"
+        },
+        "probabilities": {
+          "1": 0.03,
+          "2": 0.76,
+          "3 ou mais": 0.16,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento"
+        },
+        "probabilities": {
+          "1": 0.62,
+          "2": 0.25,
+          "3 ou mais": 0.08,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre"
+        },
+        "probabilities": {
+          "1": 0.75,
+          "2": 0.15,
+          "3 ou mais": 0.05,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal"
+        },
+        "probabilities": {
+          "1": 0.74,
+          "2": 0.16,
+          "3 ou mais": 0.05,
+          "Ignorada": 0.05
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado"
+        },
+        "probabilities": {
+          "1": 0.45,
+          "2": 0.35,
+          "3 ou mais": 0.1,
+          "Ignorada": 0.1
+        }
+      }
+    ],
+    "GRAVIDADE": [
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0679345162,
+          "Com vítimas feridas": 0.6567983531,
+          "Com vítimas fatais": 0.2752671307
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0662066769,
+          "Com vítimas feridas": 0.6465590033,
+          "Com vítimas fatais": 0.2872343197
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0634076033,
+          "Com vítimas feridas": 0.6319914049,
+          "Com vítimas fatais": 0.3046009918
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0679345162,
+          "Com vítimas feridas": 0.6567983531,
+          "Com vítimas fatais": 0.2752671307
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.07,
+          "Com vítimas feridas": 0.67,
+          "Com vítimas fatais": 0.26
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0682825894,
+          "Com vítimas feridas": 0.6601635629,
+          "Com vítimas fatais": 0.2715538477
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0654836532,
+          "Com vítimas feridas": 0.6461568136,
+          "Com vítimas fatais": 0.2883595332
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.07,
+          "Com vítimas feridas": 0.67,
+          "Com vítimas fatais": 0.26
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0681729646,
+          "Com vítimas feridas": 0.6786131671,
+          "Com vítimas fatais": 0.2532138683
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0665258712,
+          "Com vítimas feridas": 0.668906595,
+          "Com vítimas fatais": 0.2645675338
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0638337877,
+          "Com vítimas feridas": 0.6550719188,
+          "Com vítimas fatais": 0.2810942935
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0681729646,
+          "Com vítimas feridas": 0.6786131671,
+          "Com vítimas fatais": 0.2532138683
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0643678161,
+          "Com vítimas feridas": 0.6417624521,
+          "Com vítimas fatais": 0.2938697318
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0626596442,
+          "Com vítimas feridas": 0.6310419916,
+          "Com vítimas fatais": 0.3062983642
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0599115444,
+          "Com vítimas feridas": 0.6158065595,
+          "Com vítimas fatais": 0.324281896
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0643678161,
+          "Com vítimas feridas": 0.6417624521,
+          "Com vítimas fatais": 0.2938697318
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0664213788,
+          "Com vítimas feridas": 0.6616963594,
+          "Com vítimas fatais": 0.2718822618
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0647440041,
+          "Com vítimas feridas": 0.6515011983,
+          "Com vítimas fatais": 0.2837547976
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0620228883,
+          "Com vítimas feridas": 0.6369877953,
+          "Com vítimas fatais": 0.3009893164
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0664213788,
+          "Com vítimas feridas": 0.6616963594,
+          "Com vítimas fatais": 0.2718822618
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.07,
+          "Com vítimas feridas": 0.67,
+          "Com vítimas fatais": 0.26
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0682825894,
+          "Com vítimas feridas": 0.6601635629,
+          "Com vítimas fatais": 0.2715538477
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0654836532,
+          "Com vítimas feridas": 0.6461568136,
+          "Com vítimas fatais": 0.2883595332
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão frontal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.07,
+          "Com vítimas feridas": 0.67,
+          "Com vítimas fatais": 0.26
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0984682713,
+          "Com vítimas feridas": 0.8155957828,
+          "Com vítimas fatais": 0.0859359459
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0970786276,
+          "Com vítimas feridas": 0.8122076795,
+          "Com vítimas fatais": 0.0907136928
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0945744985,
+          "Com vítimas feridas": 0.807571475,
+          "Com vítimas fatais": 0.0978540265
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0984682713,
+          "Com vítimas feridas": 0.8155957828,
+          "Com vítimas fatais": 0.0859359459
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1,
+          "Com vítimas feridas": 0.82,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0986252241,
+          "Com vítimas feridas": 0.816895796,
+          "Com vítimas fatais": 0.0844789799
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0961347869,
+          "Com vítimas feridas": 0.8126858276,
+          "Com vítimas fatais": 0.0911793855
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1,
+          "Com vítimas feridas": 0.82,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0968241673,
+          "Com vítimas feridas": 0.8257164988,
+          "Com vítimas fatais": 0.0774593338
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0955045341,
+          "Com vítimas feridas": 0.822689562,
+          "Com vítimas fatais": 0.0818059039
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0931080822,
+          "Com vítimas feridas": 0.8185832213,
+          "Com vítimas fatais": 0.0883086965
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0968241673,
+          "Com vítimas feridas": 0.8257164988,
+          "Com vítimas fatais": 0.0774593338
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0950118765,
+          "Com vítimas feridas": 0.8115597783,
+          "Com vítimas fatais": 0.0934283452
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0936258748,
+          "Com vítimas feridas": 0.8077990038,
+          "Com vítimas fatais": 0.0985751214
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0911439981,
+          "Com vítimas feridas": 0.8025996398,
+          "Com vítimas fatais": 0.1062563621
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0950118765,
+          "Com vítimas feridas": 0.8115597783,
+          "Com vítimas fatais": 0.0934283452
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0960031348,
+          "Com vítimas feridas": 0.8193573668,
+          "Com vítimas fatais": 0.0846394984
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0946532892,
+          "Com vítimas feridas": 0.8159968156,
+          "Com vítimas fatais": 0.0893498952
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.092217846,
+          "Com vítimas feridas": 0.8113928717,
+          "Com vítimas fatais": 0.0963892823
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0960031348,
+          "Com vítimas feridas": 0.8193573668,
+          "Com vítimas fatais": 0.0846394984
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1,
+          "Com vítimas feridas": 0.82,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0986252241,
+          "Com vítimas feridas": 0.816895796,
+          "Com vítimas fatais": 0.0844789799
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0961347869,
+          "Com vítimas feridas": 0.8126858276,
+          "Com vítimas fatais": 0.0911793855
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Colisão traseira",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1,
+          "Com vítimas feridas": 0.82,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1577689243,
+          "Com vítimas feridas": 0.7669322709,
+          "Com vítimas fatais": 0.0752988048
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1557333418,
+          "Com vítimas feridas": 0.7646839174,
+          "Com vítimas fatais": 0.0795827408
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1520382193,
+          "Com vítimas feridas": 0.761932657,
+          "Com vítimas fatais": 0.0860291236
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1577689243,
+          "Com vítimas feridas": 0.7669322709,
+          "Com vítimas fatais": 0.0752988048
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.16,
+          "Com vítimas feridas": 0.77,
+          "Com vítimas fatais": 0.07
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.157989228,
+          "Com vítimas feridas": 0.7680031917,
+          "Com vítimas fatais": 0.0740075803
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1543203739,
+          "Com vítimas feridas": 0.7656358755,
+          "Com vítimas fatais": 0.0800437506
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.16,
+          "Com vítimas feridas": 0.77,
+          "Com vítimas fatais": 0.07
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1552192472,
+          "Com vítimas feridas": 0.7768723322,
+          "Com vítimas fatais": 0.0679084206
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1532804335,
+          "Com vítimas feridas": 0.7749177472,
+          "Com vítimas fatais": 0.0718018192
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.149734684,
+          "Com vítimas feridas": 0.7726000965,
+          "Com vítimas fatais": 0.0776652195
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1552192472,
+          "Com vítimas feridas": 0.7768723322,
+          "Com vítimas fatais": 0.0679084206
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.152653548,
+          "Com vítimas feridas": 0.7652554164,
+          "Com vítimas fatais": 0.0820910356
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1506150829,
+          "Com vítimas feridas": 0.7626631802,
+          "Com vítimas fatais": 0.0867217369
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1469375196,
+          "Com vítimas feridas": 0.7593823165,
+          "Com vítimas fatais": 0.0936801639
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.152653548,
+          "Com vítimas feridas": 0.7652554164,
+          "Com vítimas fatais": 0.0820910356
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1540577717,
+          "Com vítimas feridas": 0.7716643741,
+          "Com vítimas fatais": 0.0742778542
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1520737327,
+          "Com vítimas feridas": 0.7694206715,
+          "Com vítimas fatais": 0.0785055958
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1484680351,
+          "Com vítimas feridas": 0.7666657556,
+          "Com vítimas fatais": 0.0848662093
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1540577717,
+          "Com vítimas feridas": 0.7716643741,
+          "Com vítimas fatais": 0.0742778542
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.16,
+          "Com vítimas feridas": 0.77,
+          "Com vítimas fatais": 0.07
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.157989228,
+          "Com vítimas feridas": 0.7680031917,
+          "Com vítimas fatais": 0.0740075803
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1543203739,
+          "Com vítimas feridas": 0.7656358755,
+          "Com vítimas fatais": 0.0800437506
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outras colisões",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.16,
+          "Com vítimas feridas": 0.77,
+          "Com vítimas fatais": 0.07
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1773840334,
+          "Com vítimas feridas": 0.7366115867,
+          "Com vítimas fatais": 0.0860043799
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1750175099,
+          "Com vítimas feridas": 0.7341255275,
+          "Com vítimas fatais": 0.0908569626
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1707682368,
+          "Com vítimas feridas": 0.7310707024,
+          "Com vítimas fatais": 0.0981610608
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1773840334,
+          "Com vítimas feridas": 0.7366115867,
+          "Com vítimas fatais": 0.0860043799
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.18,
+          "Com vítimas feridas": 0.74,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.177666999,
+          "Com vítimas feridas": 0.7377866401,
+          "Com vítimas fatais": 0.0845463609
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1734551957,
+          "Com vítimas feridas": 0.735148023,
+          "Com vítimas fatais": 0.0913967812
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.18,
+          "Com vítimas feridas": 0.74,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1748251748,
+          "Com vítimas feridas": 0.7474747475,
+          "Com vítimas fatais": 0.0777000777
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1725740848,
+          "Com vítimas feridas": 0.7453031183,
+          "Com vítimas fatais": 0.0821227968
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1685002895,
+          "Com vítimas feridas": 0.7427137618,
+          "Com vítimas fatais": 0.0887859487
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1748251748,
+          "Com vítimas feridas": 0.7474747475,
+          "Com vítimas fatais": 0.0777000777
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1715647339,
+          "Com vítimas feridas": 0.7347100874,
+          "Com vítimas fatais": 0.0937251787
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1691879233,
+          "Com vítimas feridas": 0.7318501171,
+          "Com vítimas fatais": 0.0989619596
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1649478043,
+          "Com vítimas feridas": 0.7282203083,
+          "Com vítimas fatais": 0.1068318874
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1715647339,
+          "Com vítimas feridas": 0.7347100874,
+          "Com vítimas fatais": 0.0937251787
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1733490566,
+          "Com vítimas feridas": 0.741745283,
+          "Com vítimas fatais": 0.0849056604
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.171040724,
+          "Com vítimas feridas": 0.7392607393,
+          "Com vítimas fatais": 0.0896985368
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1668909983,
+          "Com vítimas feridas": 0.7361977551,
+          "Com vítimas fatais": 0.0969112466
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1733490566,
+          "Com vítimas feridas": 0.741745283,
+          "Com vítimas fatais": 0.0849056604
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.18,
+          "Com vítimas feridas": 0.74,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.177666999,
+          "Com vítimas feridas": 0.7377866401,
+          "Com vítimas fatais": 0.0845463609
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.1734551957,
+          "Com vítimas feridas": 0.735148023,
+          "Com vítimas fatais": 0.0913967812
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.18,
+          "Com vítimas feridas": 0.74,
+          "Com vítimas fatais": 0.08
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0483634587,
+          "Com vítimas feridas": 0.6350757206,
+          "Com vítimas fatais": 0.3165608207
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0470096744,
+          "Com vítimas feridas": 0.6235340953,
+          "Com vítimas fatais": 0.3294562303
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0448480546,
+          "Com vítimas feridas": 0.607127679,
+          "Com vítimas fatais": 0.3480242664
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0483634587,
+          "Com vítimas feridas": 0.6350757206,
+          "Com vítimas fatais": 0.3165608207
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.05,
+          "Com vítimas feridas": 0.65,
+          "Com vítimas fatais": 0.3
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0486486486,
+          "Com vítimas feridas": 0.6388206388,
+          "Com vítimas fatais": 0.3125307125
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0464781984,
+          "Com vítimas feridas": 0.6229036895,
+          "Com vítimas fatais": 0.3306181121
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.05,
+          "Com vítimas feridas": 0.65,
+          "Com vítimas fatais": 0.3
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0487329435,
+          "Com vítimas feridas": 0.6588693957,
+          "Com vítimas fatais": 0.2923976608
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0474365117,
+          "Com vítimas feridas": 0.6478198371,
+          "Com vítimas fatais": 0.3047436512
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0453482936,
+          "Com vítimas feridas": 0.6320710612,
+          "Com vítimas fatais": 0.3225806452
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0487329435,
+          "Com vítimas feridas": 0.6588693957,
+          "Com vítimas fatais": 0.2923976608
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0456273764,
+          "Com vítimas feridas": 0.6178707224,
+          "Com vítimas fatais": 0.3365019011
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0442969537,
+          "Com vítimas feridas": 0.6059137179,
+          "Com vítimas fatais": 0.3497893285
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0421869054,
+          "Com vítimas feridas": 0.5889494953,
+          "Com vítimas fatais": 0.3688635993
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0456273764,
+          "Com vítimas feridas": 0.6178707224,
+          "Com vítimas fatais": 0.3365019011
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0472972973,
+          "Com vítimas feridas": 0.63996139,
+          "Com vítimas fatais": 0.3127413127
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.045983222,
+          "Com vítimas feridas": 0.6284658041,
+          "Com vítimas fatais": 0.325550974
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0438820825,
+          "Com vítimas feridas": 0.6121148893,
+          "Com vítimas fatais": 0.3440030283
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0472972973,
+          "Com vítimas feridas": 0.63996139,
+          "Com vítimas fatais": 0.3127413127
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.05,
+          "Com vítimas feridas": 0.65,
+          "Com vítimas fatais": 0.3
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0486486486,
+          "Com vítimas feridas": 0.6388206388,
+          "Com vítimas fatais": 0.3125307125
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.0464781984,
+          "Com vítimas feridas": 0.6229036895,
+          "Com vítimas fatais": 0.3306181121
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de pedestre",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.05,
+          "Com vítimas feridas": 0.65,
+          "Com vítimas fatais": 0.3
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2172351885,
+          "Com vítimas feridas": 0.7181328546,
+          "Com vítimas fatais": 0.0646319569
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2146966574,
+          "Com vítimas feridas": 0.7169101174,
+          "Com vítimas fatais": 0.0683932252
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.210050647,
+          "Com vítimas feridas": 0.7158580453,
+          "Com vítimas fatais": 0.0740913077
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2172351885,
+          "Com vítimas feridas": 0.7181328546,
+          "Com vítimas fatais": 0.0646319569
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.22,
+          "Com vítimas feridas": 0.72,
+          "Com vítimas fatais": 0.06
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2174955063,
+          "Com vítimas feridas": 0.7189934092,
+          "Com vítimas fatais": 0.0635110845
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2128890662,
+          "Com vítimas feridas": 0.7182761373,
+          "Com vítimas fatais": 0.0688347965
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.22,
+          "Com vítimas feridas": 0.72,
+          "Com vítimas fatais": 0.06
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2138413686,
+          "Com vítimas feridas": 0.7278382582,
+          "Com vítimas fatais": 0.0583203733
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2114152592,
+          "Com vítimas feridas": 0.7268491555,
+          "Com vítimas fatais": 0.0617355853
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.206943367,
+          "Com vítimas feridas": 0.7261442979,
+          "Com vítimas fatais": 0.0669123351
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2138413686,
+          "Com vítimas feridas": 0.7278382582,
+          "Com vítimas fatais": 0.0583203733
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2107784431,
+          "Com vítimas feridas": 0.7185628743,
+          "Com vítimas fatais": 0.0706586826
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2082267741,
+          "Com vítimas feridas": 0.7170343459,
+          "Com vítimas fatais": 0.07473888
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2035846739,
+          "Com vítimas feridas": 0.7155037743,
+          "Com vítimas fatais": 0.0809115518
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2107784431,
+          "Com vítimas feridas": 0.7185628743,
+          "Com vítimas fatais": 0.0706586826
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2124556563,
+          "Com vítimas feridas": 0.7236893969,
+          "Com vítimas fatais": 0.0638549468
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2099727308,
+          "Com vítimas feridas": 0.7224563516,
+          "Com vítimas fatais": 0.0675709176
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2054236915,
+          "Com vítimas feridas": 0.7213776899,
+          "Com vítimas fatais": 0.0731986185
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2124556563,
+          "Com vítimas feridas": 0.7236893969,
+          "Com vítimas fatais": 0.0638549468
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.22,
+          "Com vítimas feridas": 0.72,
+          "Com vítimas fatais": 0.06
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2174955063,
+          "Com vítimas feridas": 0.7189934092,
+          "Com vítimas fatais": 0.0635110845
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.2128890662,
+          "Com vítimas feridas": 0.7182761373,
+          "Com vítimas fatais": 0.0688347965
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Atropelamento de animal",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.22,
+          "Com vítimas feridas": 0.72,
+          "Com vítimas fatais": 0.06
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3358611056,
+          "Com vítimas feridas": 0.5887048493,
+          "Com vítimas fatais": 0.0754340451
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3321147732,
+          "Com vítimas feridas": 0.5880183781,
+          "Com vítimas fatais": 0.0798668487
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.325382035,
+          "Com vítimas feridas": 0.587976186,
+          "Com vítimas fatais": 0.086641779
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Céu claro/sol",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3358611056,
+          "Com vítimas feridas": 0.5887048493,
+          "Com vítimas fatais": 0.0754340451
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.34,
+          "Com vítimas feridas": 0.59,
+          "Com vítimas fatais": 0.07
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3363309353,
+          "Com vítimas feridas": 0.5895283773,
+          "Com vítimas fatais": 0.0741406875
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3297010897,
+          "Com vítimas feridas": 0.5898230531,
+          "Com vítimas fatais": 0.0804758572
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Nublado",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.34,
+          "Com vítimas feridas": 0.59,
+          "Com vítimas fatais": 0.07
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3321610004,
+          "Com vítimas feridas": 0.5994529113,
+          "Com vítimas fatais": 0.0683860883
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3285825849,
+          "Com vítimas feridas": 0.5989847716,
+          "Com vítimas fatais": 0.0724326435
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3221017678,
+          "Com vítimas feridas": 0.5992772732,
+          "Com vítimas fatais": 0.0786209591
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Chuva/garoa",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3321610004,
+          "Com vítimas feridas": 0.5994529113,
+          "Com vítimas fatais": 0.0683860883
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3267267267,
+          "Com vítimas feridas": 0.5905905906,
+          "Com vítimas fatais": 0.0826826827
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3229125445,
+          "Com vítimas feridas": 0.5895920023,
+          "Com vítimas fatais": 0.0874954531
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3161028676,
+          "Com vítimas feridas": 0.5890586842,
+          "Com vítimas fatais": 0.0948384482
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Neblina/nevoeiro",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3267267267,
+          "Com vítimas feridas": 0.5905905906,
+          "Com vítimas fatais": 0.0826826827
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3297051257,
+          "Com vítimas feridas": 0.595487829,
+          "Com vítimas fatais": 0.0748070453
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3260196639,
+          "Com vítimas feridas": 0.594779226,
+          "Com vítimas fatais": 0.0792011101
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3193892152,
+          "Com vítimas feridas": 0.5946969398,
+          "Com vítimas fatais": 0.085913845
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Outras adversas",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3297051257,
+          "Com vítimas feridas": 0.595487829,
+          "Com vítimas fatais": 0.0748070453
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Pleno dia"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.34,
+          "Com vítimas feridas": 0.59,
+          "Com vítimas fatais": 0.07
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Transição"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3363309353,
+          "Com vítimas feridas": 0.5895283773,
+          "Com vítimas fatais": 0.0741406875
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Plena noite"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.3297010897,
+          "Com vítimas feridas": 0.5898230531,
+          "Com vítimas fatais": 0.0804758572
+        }
+      },
+      {
+        "when": {
+          "TIPO_ACIDENTE": "Outros/ignorado",
+          "METEOROLOGIA": "Ignorada",
+          "FASE_DIA": "Ignorada"
+        },
+        "probabilities": {
+          "Sem vítimas": 0.34,
+          "Com vítimas feridas": 0.59,
+          "Com vítimas fatais": 0.07
+        }
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "C1_colisao_frontal_tempo_claro_dia",
+      "name": "Colisão frontal em céu claro durante o dia",
+      "question": "Qual é a distribuição da gravidade para uma ocorrência classificada como colisão frontal, sob céu claro/sol e durante o pleno dia?",
+      "evidence": {
+        "TIPO_ACIDENTE": "Colisão frontal",
+        "METEOROLOGIA": "Céu claro/sol",
+        "FASE_DIA": "Pleno dia"
+      },
+      "query": "GRAVIDADE",
+      "expected_result": null,
+      "relevance": "Demonstra a consulta da variável-alvo para um tipo de colisão destacado na literatura nacional."
+    },
+    {
+      "id": "C2_atropelamento_pedestre",
+      "name": "Atropelamento de pedestre",
+      "question": "Como a rede distribui a gravidade para um atropelamento de pedestre durante o dia, sob céu claro/sol?",
+      "evidence": {
+        "TIPO_ACIDENTE": "Atropelamento de pedestre",
+        "METEOROLOGIA": "Céu claro/sol",
+        "FASE_DIA": "Pleno dia"
+      },
+      "query": "GRAVIDADE",
+      "expected_result": null,
+      "relevance": "Permite discutir o envolvimento de pedestres, fator associado à maior severidade em estudo brasileiro."
+    },
+    {
+      "id": "C3_saida_pista_neblina_noite",
+      "name": "Saída de pista sob neblina durante a noite",
+      "question": "Qual é a distribuição da gravidade quando o tipo de ocorrência é saída de pista/capotamento/tombamento, sob neblina e à noite?",
+      "evidence": {
+        "TIPO_ACIDENTE": "Saída de pista/capotamento/tombamento",
+        "METEOROLOGIA": "Neblina/nevoeiro",
+        "FASE_DIA": "Plena noite"
+      },
+      "query": "GRAVIDADE",
+      "relevance": "Explora a combinação de baixa visibilidade, período noturno e tipo de ocorrência."
+    },
+    {
+      "id": "C4_diagnostico_veiculos_sem_tipo",
+      "name": "Diagnóstico com apenas a evidência de múltiplos veículos",
+      "question": "Sem informar o tipo de acidente, a meteorologia, a região ou a fase do dia, qual distribuição de gravidade a rede estima quando sabemos apenas que a ocorrência envolveu três ou mais veículos?",
+      "evidence": {
+        "VEICULOS": "3 ou mais"
+      },
+      "query": "GRAVIDADE",
+      "relevance": "Demonstra inferência diagnóstica com informação parcial: a evidência sobre veículos atualiza os tipos de acidente possíveis, enquanto as distribuições iniciais de região e meteorologia também participam da inferência."
+    }
+  ],
+  "execution_metadata": {
+    "language": "Python 3.10+",
+    "libraries": [
+      "biblioteca padrão do Python (json, itertools, csv, unittest)"
+    ],
+    "inference": "Eliminação de variáveis exata, implementada manualmente; nenhuma aprendizagem automática da estrutura ou estimação automática das CPTs.",
+    "model_version": "1.0.0",
+    "cpt_parameter_file": "config/parametros_cpt.json"
+  }
+}

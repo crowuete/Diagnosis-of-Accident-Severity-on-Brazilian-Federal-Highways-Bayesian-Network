@@ -1,0 +1,413 @@
+{
+  "_meta": {
+    "versao": "1.0.0",
+    "titulo": "Parâmetros manuais editáveis das CPTs — modelo compacto PRF",
+    "aviso": "Os parâmetros das CPTs são definidos manualmente. Os priors de METEOROLOGIA e REGIAO foram atualizados para aproximações críticas das frequências descritivas dos 342.665 registros PRF de 2021–2025; não são estimação automática de CPTs. As demais tabelas permanecem hipóteses manuais. A literatura fundamenta tendências qualitativas, não probabilidades absolutas transferíveis.",
+    "ordem_probabilidades_gravidade": [
+      "Sem vítimas",
+      "Com vítimas feridas",
+      "Com vítimas fatais"
+    ],
+    "como_editar": "Edite este arquivo, não modelo.json. Para gravidade, altere severity_base_by_type e severity_multipliers. Vetores da gravidade seguem a ordem [Sem vítimas, Com vítimas feridas, Com vítimas fatais]. Para regenerar as CPTs execute python modelo_builder.py; depois execute python -m unittest discover -s tests -v e python executar_cenarios.py.",
+    "observacao": "Os vetores podem ser tratados como pesos antes da normalização quando forem aplicados multiplicadores. As distribuições-âncora em severity_base_by_type devem somar 1; os multiplicadores devem ser positivos. Alterar um valor não significa que ele esteja validado empiricamente; registre a justificativa e faça análise de sensibilidade.",
+    "prior_observado_vs_adotado": {
+      "METEOROLOGIA": {
+        "ordem_estados": [
+          "Céu claro/sol",
+          "Nublado",
+          "Chuva/garoa",
+          "Neblina/nevoeiro",
+          "Outras adversas",
+          "Ignorada"
+        ],
+        "frequencia_observada_percentual": [
+          68.3382,
+          15.7641,
+          13.5759,
+          0.8282,
+          0.1786,
+          1.315
+        ],
+        "prior_adotado_percentual": [
+          66,
+          15,
+          15,
+          2,
+          1,
+          1
+        ],
+        "observacao": "Aproximação manual baseada na distribuição observada, com arredondamento crítico e pequena redistribuição de massa para chuva, neblina e outras condições adversas. Não equivale a arredondamento matemático simples."
+      },
+      "REGIAO": {
+        "ordem_estados": [
+          "Norte",
+          "Nordeste",
+          "Centro-Oeste",
+          "Sudeste",
+          "Sul",
+          "Ignorada"
+        ],
+        "frequencia_observada_percentual": [
+          5.4132,
+          21.6649,
+          12.0176,
+          31.3049,
+          29.5995,
+          0.0
+        ],
+        "prior_adotado_percentual": [
+          6,
+          20,
+          12,
+          32,
+          28,
+          2
+        ],
+        "observacao": "As cinco macrorregiões foram aproximadas às frequências observadas; 2% foram reservados manualmente ao estado Ignorada, que não apresentou registros na base tratada 2021–2025. Essa reserva é uma hipótese de suporte a informação ausente, não uma frequência observada."
+      }
+    }
+  },
+  "root_priors": {
+    "DIA_SEMANA": [
+      0.475,
+      0.475,
+      0.05
+    ],
+    "METEOROLOGIA": [
+      0.66,
+      0.15,
+      0.15,
+      0.02,
+      0.01,
+      0.01
+    ],
+    "REGIAO": [
+      0.06,
+      0.2,
+      0.12,
+      0.32,
+      0.28,
+      0.02
+    ]
+  },
+  "fase_dia_by_day": {
+    "Dia útil": [
+      0.56,
+      0.1,
+      0.3,
+      0.04
+    ],
+    "Fim de semana": [
+      0.54,
+      0.12,
+      0.3,
+      0.04
+    ],
+    "Ignorado": [
+      0.45,
+      0.15,
+      0.2,
+      0.2
+    ]
+  },
+  "uso_solo_by_region": {
+    "Norte": [
+      0.38,
+      0.57,
+      0.05
+    ],
+    "Nordeste": [
+      0.55,
+      0.4,
+      0.05
+    ],
+    "Centro-Oeste": [
+      0.48,
+      0.47,
+      0.05
+    ],
+    "Sudeste": [
+      0.7,
+      0.25,
+      0.05
+    ],
+    "Sul": [
+      0.62,
+      0.33,
+      0.05
+    ],
+    "Ignorada": [
+      0.45,
+      0.4,
+      0.15
+    ]
+  },
+  "tipo_pista_by_land": {
+    "Urbano": [
+      0.42,
+      0.4,
+      0.13,
+      0.05
+    ],
+    "Rural": [
+      0.72,
+      0.18,
+      0.05,
+      0.05
+    ],
+    "Ignorado": [
+      0.45,
+      0.3,
+      0.1,
+      0.15
+    ]
+  },
+  "tracado_by_tipo_pista": {
+    "Simples": [
+      0.6,
+      0.28,
+      0.08,
+      0.04
+    ],
+    "Dupla": [
+      0.55,
+      0.22,
+      0.18,
+      0.05
+    ],
+    "Múltipla": [
+      0.45,
+      0.18,
+      0.32,
+      0.05
+    ],
+    "Ignorada": [
+      0.4,
+      0.2,
+      0.2,
+      0.2
+    ]
+  },
+  "type_base": [
+    0.09,
+    0.13,
+    0.31,
+    0.2425,
+    0.035,
+    0.0475,
+    0.145
+  ],
+  "type_geometry_multipliers": {
+    "Reta": [
+      1.18,
+      1.0,
+      1.0,
+      0.95,
+      0.95,
+      0.95,
+      1.0
+    ],
+    "Curva": [
+      0.92,
+      0.92,
+      0.98,
+      1.25,
+      0.9,
+      1.0,
+      1.0
+    ],
+    "Cruzamento": [
+      0.72,
+      1.25,
+      1.15,
+      0.65,
+      1.25,
+      1.1,
+      1.0
+    ],
+    "Outros/ignorado": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "tipo_pista_multipliers": {
+    "Simples": [
+      1.25,
+      1.02,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "Dupla": [
+      0.78,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "Múltipla": [
+      0.68,
+      0.98,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "Ignorada": [
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "vehicles_by_type": {
+    "Colisão frontal": [
+      0.05,
+      0.73,
+      0.17,
+      0.05
+    ],
+    "Colisão traseira": [
+      0.03,
+      0.78,
+      0.14,
+      0.05
+    ],
+    "Outras colisões": [
+      0.03,
+      0.76,
+      0.16,
+      0.05
+    ],
+    "Saída de pista/capotamento/tombamento": [
+      0.62,
+      0.25,
+      0.08,
+      0.05
+    ],
+    "Atropelamento de pedestre": [
+      0.75,
+      0.15,
+      0.05,
+      0.05
+    ],
+    "Atropelamento de animal": [
+      0.74,
+      0.16,
+      0.05,
+      0.05
+    ],
+    "Outros/ignorado": [
+      0.45,
+      0.35,
+      0.1,
+      0.1
+    ]
+  },
+  "severity_base_by_type": {
+    "Colisão frontal": [
+      0.07,
+      0.67,
+      0.26
+    ],
+    "Colisão traseira": [
+      0.1,
+      0.82,
+      0.08
+    ],
+    "Outras colisões": [
+      0.16,
+      0.77,
+      0.07
+    ],
+    "Saída de pista/capotamento/tombamento": [
+      0.18,
+      0.74,
+      0.08
+    ],
+    "Atropelamento de pedestre": [
+      0.05,
+      0.65,
+      0.3
+    ],
+    "Atropelamento de animal": [
+      0.22,
+      0.72,
+      0.06
+    ],
+    "Outros/ignorado": [
+      0.34,
+      0.59,
+      0.07
+    ]
+  },
+  "severity_multipliers": {
+    "METEOROLOGIA": {
+      "Céu claro/sol": [
+        0.99,
+        1.0,
+        1.08
+      ],
+      "Nublado": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Chuva/garoa": [
+        1.0,
+        1.04,
+        1.0
+      ],
+      "Neblina/nevoeiro": [
+        0.96,
+        1.0,
+        1.18
+      ],
+      "Outras adversas": [
+        0.98,
+        1.02,
+        1.08
+      ],
+      "Ignorada": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    "FASE_DIA": {
+      "Pleno dia": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "Transição": [
+        0.99,
+        1.0,
+        1.06
+      ],
+      "Plena noite": [
+        0.97,
+        1.0,
+        1.15
+      ],
+      "Ignorada": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  }
+}

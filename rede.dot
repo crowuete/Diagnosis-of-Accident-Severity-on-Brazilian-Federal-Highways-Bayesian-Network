@@ -1,0 +1,30 @@
+digraph RedeBayesianaPRFCompacta {
+  graph [rankdir=LR, bgcolor="white", pad="0.25", nodesep="0.45", ranksep="0.75", splines=true, label="Rede Bayesiana PRF — modelo compacto 3.1.0", labelloc="t", fontsize=20, fontname="Arial"];
+  node [shape=box, style="rounded,filled", fillcolor="#EAF2F8", color="#5B7892", fontname="Arial", fontsize=11, margin="0.14,0.09"];
+  edge [color="#5B7892", penwidth=1.4, arrowsize=0.8];
+
+  DIA_SEMANA [label="DIA_SEMANA\n3 estados"];
+  FASE_DIA [label="FASE_DIA\n4 estados"];
+  METEOROLOGIA [label="METEOROLOGIA\n6 estados"];
+  REGIAO [label="REGIAO\n6 estados"];
+  USO_SOLO [label="USO_SOLO\n3 estados"];
+  TIPO_PISTA [label="TIPO_PISTA\n4 estados"];
+  TRACADO_VIA [label="TRACADO_VIA\n4 estados"];
+  TIPO_ACIDENTE [label="TIPO_ACIDENTE\n7 estados"];
+  VEICULOS [label="VEICULOS\n4 estados"];
+  GRAVIDADE [label="GRAVIDADE\n3 estados", fillcolor="#E6F4EA", color="#33845A", penwidth=2];
+
+  DIA_SEMANA -> FASE_DIA;
+  FASE_DIA -> GRAVIDADE;
+  METEOROLOGIA -> GRAVIDADE;
+  REGIAO -> USO_SOLO;
+  USO_SOLO -> TIPO_PISTA;
+  TIPO_PISTA -> TRACADO_VIA;
+  TIPO_PISTA -> TIPO_ACIDENTE;
+  TRACADO_VIA -> TIPO_ACIDENTE;
+  TIPO_ACIDENTE -> VEICULOS;
+  TIPO_ACIDENTE -> GRAVIDADE;
+
+  {rank=same; DIA_SEMANA; METEOROLOGIA; REGIAO}
+  {rank=same; FASE_DIA; USO_SOLO}
+}
